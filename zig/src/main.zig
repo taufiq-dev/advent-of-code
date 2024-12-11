@@ -108,6 +108,39 @@ pub fn searchDiagonal(grid: [][]u8, currRow: u8, currCol: u8, max_rows: u8, max_
     return diagonalCount;
 }
 
+pub fn day04part1(currRow: *u8, currCol: *u8, max_cols: *u8, grid: [][]u8) !void {
+    currRow.* = 0;
+    var rightXmasCount: u16 = 0;
+    var leftXmasCount: u16 = 0;
+    var downXmasCount: u16 = 0;
+    var upXmasCount: u16 = 0;
+    var diagonalCount: u16 = 0;
+    while (currRow.* < 140) : (currRow.* += 1) {
+        currCol.* = 0;
+        while (currCol.* < max_cols.*) : (currCol.* += 1) {
+            const rightRes = searchRight(grid, currRow.*, currCol.*, max_cols.*);
+            if (rightRes) {
+                rightXmasCount += 1;
+            }
+            const leftRes = searchLeft(grid, currRow.*, currCol.*);
+            if (leftRes) {
+                leftXmasCount += 1;
+            }
+            const downRes = searchDown(grid, currRow.*, currCol.*, 140);
+            if (downRes) {
+                downXmasCount += 1;
+            }
+            const upRes = searchUp(grid, currRow.*, currCol.*);
+            if (upRes) {
+                upXmasCount += 1;
+            }
+            diagonalCount += searchDiagonal(grid, currRow.*, currCol.*, 140, @as(u8, max_cols.*));
+        }
+    }
+    const total: u16 = rightXmasCount + leftXmasCount + downXmasCount + upXmasCount + diagonalCount;
+    std.debug.print("total: {d}\n", .{total});
+}
+
 pub fn main() !void {
     // Get allocator for reading file
     // The .{} is an empty struct literal in Zig, representing default configuration options for the allocator
@@ -172,40 +205,8 @@ pub fn main() !void {
         }
     }
 
-    currRow = 0;
-    var rightXmasCount: u16 = 0;
-    var leftXmasCount: u16 = 0;
-    var downXmasCount: u16 = 0;
-    var upXmasCount: u16 = 0;
-    var diagonalCount: u16 = 0;
-    while (currRow < 140) : (currRow += 1) {
-        currCol = 0;
-        while (currCol < max_cols) : (currCol += 1) {
-            const rightRes = searchRight(grid, currRow, currCol, max_cols);
-            if (rightRes) {
-                rightXmasCount += 1;
-            }
-            const leftRes = searchLeft(grid, currRow, currCol);
-            if (leftRes) {
-                leftXmasCount += 1;
-            }
-            const downRes = searchDown(grid, currRow, currCol, 140);
-            if (downRes) {
-                downXmasCount += 1;
-            }
-            const upRes = searchUp(grid, currRow, currCol);
-            if (upRes) {
-                upXmasCount += 1;
-            }
-            diagonalCount += searchDiagonal(grid, currRow, currCol, 140, @as(u8, max_cols));
-        }
-    }
-
-    std.debug.print("rightXmasCount: {d}\n", .{rightXmasCount});
-    std.debug.print("leftXmasCount: {d}\n", .{leftXmasCount});
-    std.debug.print("downXmasCount: {d}\n", .{downXmasCount});
-    std.debug.print("upXmasCount: {d}\n", .{upXmasCount});
-    std.debug.print("diagonalCount: {d}\n", .{diagonalCount});
-    const total: u16 = rightXmasCount + leftXmasCount + downXmasCount + upXmasCount + diagonalCount;
-    std.debug.print("total: {d}\n", .{total});
+    day04part1(&currRow, &currCol, &max_cols, grid) catch |err| {
+        std.debug.print("Error: {s}\n", .{@errorName(err)});
+        return;
+    };
 }
