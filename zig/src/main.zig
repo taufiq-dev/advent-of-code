@@ -109,7 +109,6 @@ pub fn searchDiagonal(grid: [][]u8, currRow: u8, currCol: u8, max_rows: u8, max_
 }
 
 pub fn day04part1(currRow: *u8, currCol: *u8, max_cols: *u8, grid: [][]u8) !void {
-    currRow.* = 0;
     var rightXmasCount: u16 = 0;
     var leftXmasCount: u16 = 0;
     var downXmasCount: u16 = 0;
@@ -139,6 +138,34 @@ pub fn day04part1(currRow: *u8, currCol: *u8, max_cols: *u8, grid: [][]u8) !void
     }
     const total: u16 = rightXmasCount + leftXmasCount + downXmasCount + upXmasCount + diagonalCount;
     std.debug.print("total: {d}\n", .{total});
+}
+
+pub fn day04part2(currRow: *u8, currCol: *u8, max_cols: *u8, grid: [][]u8) !void {
+    var xmasCount: u16 = 0;
+    while (currRow.* < 140) : (currRow.* += 1) {
+        currCol.* = 0;
+        while (currCol.* < max_cols.*) : (currCol.* += 1) {
+            if (currRow.* >= 1 and currCol.* >= 1 and currRow.* <= max_cols.* - 2 and currCol.* <= max_cols.* - 2) {
+                var str: [3]u8 = undefined;
+                var i: u8 = 0;
+                // diagonal right down
+                while (i < 3) : (i += 1) {
+                    str[i] = grid[currRow.* - 1 + i][currCol.* - 1 + i];
+                }
+                if (std.mem.eql(u8, &str, "MAS") or std.mem.eql(u8, &str, "SAM")) {
+                    i = 0;
+                    // diagonal left down
+                    while (i < 3) : (i += 1) {
+                        str[i] = grid[currRow.* - 1 + i][currCol.* + 1 - i];
+                    }
+                    if (std.mem.eql(u8, &str, "MAS") or std.mem.eql(u8, &str, "SAM")) {
+                        xmasCount += 1;
+                    }
+                }
+            }
+        }
+    }
+    std.debug.print("total: {d}\n", .{xmasCount});
 }
 
 pub fn main() !void {
@@ -205,7 +232,12 @@ pub fn main() !void {
         }
     }
 
-    day04part1(&currRow, &currCol, &max_cols, grid) catch |err| {
+    currRow = 0;
+    // day04part1(&currRow, &currCol, &max_cols, grid) catch |err| {
+    //     std.debug.print("Error: {s}\n", .{@errorName(err)});
+    //     return;
+    // };
+    day04part2(&currRow, &currCol, &max_cols, grid) catch |err| {
         std.debug.print("Error: {s}\n", .{@errorName(err)});
         return;
     };
